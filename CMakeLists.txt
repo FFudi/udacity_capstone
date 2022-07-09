@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.0.0)
 project(capstone VERSION 0.1.0)
 
 add_executable(capstone ./src/main.cpp
-./src/utils.cpp)
+./src/init.cpp
+./src/utils.cpp
+./src/model.cpp)
 
 # boost
 find_package(Boost COMPONENTS filesystem REQUIRED)

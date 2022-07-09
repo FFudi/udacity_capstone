@@ -7,10 +7,11 @@
 #include <mutex>
 #include <vector>
 #include <string>
+#include "init.hpp"
 
 enum class retResult
 {
-    ERROR=0,
+    ERROR = 0,
     SUCCESS
 };
 
@@ -35,6 +36,10 @@ struct video_t
 class Utils
 {
 public:
+    Utils(std::string data_path, int width, int height)
+    {
+        parsing("../data", width, height);
+    }
     retResult readFolderList(std::string data_path);
     retResult readVideoFile(std::string data_path, int set_width, int set_height);
     void parsing(std::string data_path, int set_width, int set_height);
@@ -43,7 +48,6 @@ public:
 private:
     std::vector<std::string> mVideoLists;
     std::shared_ptr<std::deque<video_t>> mVideoQueue = std::make_shared<std::deque<video_t>>(); 
-    std::mutex mMtx;
 };
 
 

@@ -18,7 +18,7 @@ retResult Utils::readFolderList(std::string data_path)
         return ret;
     }
 
-    std::cout << "@ total file count is " << mVideoLists.size() << std::endl;
+    std::cout << "\n@ total video count is " << mVideoLists.size() << std::endl;
     for (const auto &ele : mVideoLists)
     {
         std::cout << "[" << &ele - &*mVideoLists.begin() << "]: " << ele << std::endl;
@@ -66,7 +66,7 @@ retResult Utils::readVideoFile(std::string data_path, int set_width, int set_hei
 
         while (capture.read(frame))
         {
-            mMtx.lock();
+            gMtxPre.lock();
 
             int current = capture.get(cv::CAP_PROP_POS_FRAMES);
 
@@ -76,7 +76,7 @@ retResult Utils::readVideoFile(std::string data_path, int set_width, int set_hei
             image_t image{fileName, (int)totalFrame, current, set_width, set_height, frame};
             (mVideoQueue->back()).imageQueue->push_back(image);
 
-            mMtx.unlock();
+            gMtxPre.unlock();
         }
         capture.release();
     }
@@ -109,7 +109,7 @@ void Utils::rendering(void)
             {
                 if ((video->imageQueue)->size() != 0)
                 {
-                    mMtx.lock();
+                    gMtxPre.lock();
 
                     image_t *image = &(video->imageQueue)->front();
 
@@ -128,18 +128,18 @@ void Utils::rendering(void)
                     (video->imageQueue)->pop_front();
                     frameCnt++;
                     
-                    mMtx.unlock();
+                    gMtxPre.unlock();
                 }
             }
             mVideoQueue->pop_front();
             videoCnt++;
-        }
-
-        if (videoCnt == mVideoLists.size())
-        {
-            cv::destroyAllWindows();
-            std::cout << "@@ complete fire detection" << std::endl;
-            exit(1);
+            
+            if (videoCnt == mVideoLists.size())
+            {
+                cv::destroyAllWindows();
+                std::cout << "@@ complete fire detection" << std::endl;
+                exit(1);
+            }
         }
     }
 }
