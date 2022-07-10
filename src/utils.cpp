@@ -60,13 +60,13 @@ retResult Utils::readVideoFile(std::string data_path, int set_width, int set_hei
         video.fileName = fileName;
         video.totalFrame = totalFrame;
         video.delay = delay;
-        mVideoQueue->push_back(video);
+        VideoQueue->push_back(video);
 
         // play video
 
         while (capture.read(frame))
         {
-            gMtxPre.lock();
+            gMtxVideo.lock();
 
             int current = capture.get(cv::CAP_PROP_POS_FRAMES);
 
@@ -74,9 +74,9 @@ retResult Utils::readVideoFile(std::string data_path, int set_width, int set_hei
             cv::resize(frame, frame, cv::Size(set_width, set_height));
 
             image_t image{fileName, (int)totalFrame, current, set_width, set_height, frame};
-            (mVideoQueue->back()).imageQueue->push_back(image);
+            (VideoQueue->back()).imageQueue->push_back(image);
 
-            gMtxPre.unlock();
+            gMtxVideo.unlock();
         }
         capture.release();
     }
@@ -85,31 +85,35 @@ retResult Utils::readVideoFile(std::string data_path, int set_width, int set_hei
     return ret;
 }
 
-void Utils::parsing(std::string data_path, int set_width, int set_height)
+void Utils::Run(std::string data_path, int set_width, int set_height)
 {
     std::thread parsing_thrd(&Utils::readVideoFile, this, data_path, set_width, set_height);
-    std::thread rendering_thrd(&Utils::rendering, this);
+    // std::thread rendering_thrd(&Utils::rendering, this);
     parsing_thrd.join();
-    rendering_thrd.join();
+    // rendering_thrd.join();
 }
 
 void Utils::rendering(void)
 {
     int key;
     int videoCnt = 0;
-
+    // cv::namedWindow("Style transfer Viewer",  cv::WindowFlags::WINDOW_NORMAL);
+    cv::namedWindow("Style transfer Viewer",  cv::WindowFlags::WINDOW_KEEPRATIO);
+    // cv::namedWindow("Style transfer Viewer");
+    
     while (1)
     {
-        if (mVideoQueue->size() != 0)
+        if (VideoQueue->size() != 0)
         {
-            video_t *video = &(mVideoQueue->front());
+            video_t *video = &(VideoQueue->front());
             int delay = video->delay;
             int frameCnt = 0;
             while (frameCnt < video->totalFrame)
             {
                 if ((video->imageQueue)->size() != 0)
                 {
-                    gMtxPre.lock();
+                    gMtxVideo.lock();
+                    // gMtxPost.lock();
 
                     image_t *image = &(video->imageQueue)->front();
 
@@ -118,26 +122,26 @@ void Utils::rendering(void)
 
                     // draw image
                     std::string scene = std::string("[#") + std::to_string(image->framenumber) + std::string("]");
-                    cv::putText(image->frame, video->fileName + scene, cv::Point(20, 40), cv::FONT_HERSHEY_PLAIN, 1.5, cv::Scalar(0, 0, 0), 2);
+                    cv::putText(image->frame, video->fileName + scene, cv::Point(10, 20), cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(0, 0, 0), 1);
 
-                    cv::imshow("Fire Detection Viewer", image->frame);
+                    cv::imshow("Style transfer Viewer", image->frame);
                     key = cv::waitKey(video->delay);
                     if (key == 'q')
                         exit(1);
 
                     (video->imageQueue)->pop_front();
                     frameCnt++;
-                    
-                    gMtxPre.unlock();
+                    // gMtxPost.unlock();
+                    gMtxVideo.unlock();
                 }
             }
-            mVideoQueue->pop_front();
+            VideoQueue->pop_front();
             videoCnt++;
             
             if (videoCnt == mVideoLists.size())
             {
                 cv::destroyAllWindows();
-                std::cout << "@@ complete fire detection" << std::endl;
+                std::cout << "@@ complete capstone" << std::endl;
                 exit(1);
             }
         }

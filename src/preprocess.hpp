@@ -1,15 +1,16 @@
 #ifndef __PREPROCESS_H__
 #define __PREPROCESS_H__
-#include "model.hpp"
+#include "utils.hpp"
 
 class PreProcess
 {
 public:
-    void parsing()
+    PreProcess()
     {
+        Run();
     }
-    
-private:
+    void pre(void);
+    void Run(void);
 
 };
 

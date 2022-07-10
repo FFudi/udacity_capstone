@@ -3,6 +3,8 @@ project(capstone VERSION 0.1.0)
 
 add_executable(capstone ./src/main.cpp
 ./src/init.cpp
+./src/preprocess.cpp
+./src/postprocess.cpp
 ./src/utils.cpp
 ./src/model.cpp)
 
@@ -19,7 +21,3 @@ target_link_libraries(capstone ${OpenCV_LIBRARIES})
 # thread
 find_package(Threads REQUIRED)
 target_link_libraries(capstone ${CMAKE_THREAD_LIBS_INIT})
-
-set(CPACK_PROJECT_NAME ${PROJECT_NAME})
-set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
-include(CPack)

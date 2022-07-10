@@ -13,13 +13,15 @@ int main()
     // 1. model init
     Model model("../model");
     // 2. preprocess init
+    PreProcess preTask;
 
     // 3. model running
 
     // 4. postprocess 
 
     // 5. rendering
-    Utils utils("../data", 720, 480);
+    Utils utilsTask("../data", 224, 224);
+
 
 	return 0;
 }
