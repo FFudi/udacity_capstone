@@ -98,7 +98,7 @@ void Utils::rendering(void)
     int key;
     int videoCnt = 0;
     // cv::namedWindow("Style transfer Viewer",  cv::WindowFlags::WINDOW_NORMAL);
-    cv::namedWindow("Style transfer Viewer",  cv::WindowFlags::WINDOW_KEEPRATIO);
+    cv::namedWindow("Style transfer Viewer2",  cv::WindowFlags::WINDOW_KEEPRATIO);
     // cv::namedWindow("Style transfer Viewer");
     
     while (1)

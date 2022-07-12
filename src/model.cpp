@@ -31,8 +31,24 @@ retResult Model::readModelList(std::string models_path)
     return ret;
 }
 
-void Model::Run(void)
+retResult Model::Init(std::string models_path)
 {
+    auto ret = retResult::ERROR;
+    if(readModelList(models_path)!=retResult::SUCCESS) return ret;
+
+    // loading network
+
+    return ret;
+}
 
 
+retResult Model::Run(std::string models_path)
+{
+    auto ret = retResult::ERROR;
+
+
+    // cv::dnn::blobFromImage(imageRGB, imageRGB);
+
+
+    return ret;
 }

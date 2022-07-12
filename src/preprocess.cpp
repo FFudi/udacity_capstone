@@ -32,26 +32,28 @@ void PreProcess::pre(void)
                 {
                     gMtxVideo.lock();
 
-                    image_t *image = &(video->imageQueue)->front();
+                    image_t image = (video->imageQueue)->front();
+                    (video->imageQueue)->pop_front();
 
-                    std::cout << "PreProcess: " << video->fileName << "(" << image->width << "X" << image->height
-                              << "), FPS: " << (int)(1000 / video->delay) << " [#" << image->framenumber << "]| " << std::endl;
+                    std::cout << "PreProcess: " << video->fileName << "(" << image.width << "X" << image.height
+                              << "), FPS: " << (int)(1000 / video->delay) << " [#" << image.framenumber << "]| " << std::endl;
 
                     // push to InferQueue
                     gMtxPre.lock();
-                    // Todo : preprocess
-                    // preImage
 
-
-                    // 여기서부터 시작
                     // 1. onnx에 들어갈 수 있도록 구조체 여기서 싹다 마련할 것
+                    // preprocess(BGR to RGB)
+                    cv::cvtColor(image.frame, image.frame, cv::ColorConversionCodes::COLOR_BGR2RGB);
+                    (image.frame).convertTo(image.frame, CV_32F, 1.0 / 255); // cvt CV_32F, 1.0/255
 
+                    // validation code
+                    cv::imshow("Style transfer Viewer", image.frame);
+                    key = cv::waitKey(video->delay);
+                    if (key == 'q') exit(1);
 
-                    // (PreQueue->back()).imageQueue->push_back(preImage);
+                    (PreQueue->back()).imageQueue->push_back(image);
+
                     gMtxPre.unlock();
-
-                    (video->imageQueue)->pop_front();
-
                     gMtxVideo.unlock();
                     frameCnt++;
                 }
