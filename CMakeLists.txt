@@ -23,9 +23,6 @@ find_package(Threads REQUIRED)
 target_link_libraries(capstone ${CMAKE_THREAD_LIBS_INIT})
 
 # onnxruntime
-find_path(ONNX_RUNTIME_SESSION_INCLUDE_DIRS onnxruntime_cxx_api.h HINTS ./onnxruntime/include/onnxruntime/core/session)
-find_library(ONNX_RUNTIME_LIB onnxruntime HINTS ./onnx/lib)
-
-# target_include_directories(capstone ${ONNX_RUNTIME_SESSION_INCLUDE_DIRS})
-include_directories(./onnxruntime/include/onnxruntime/core/session)
+find_library(ONNX_RUNTIME_LIB onnxruntime HINTS ./onnxInstall/runtimes/linux-x64/native)
+include_directories(./onnxInstall/build/native/include)
 target_link_libraries(capstone ${ONNX_RUNTIME_LIB})
