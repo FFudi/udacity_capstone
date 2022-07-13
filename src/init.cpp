@@ -1,5 +1,8 @@
 #include "init.hpp"
 
+// flag
+bool parsing_flag = false;
+
 // mutex handle
 std::mutex gMtxVideo;
 std::mutex gMtxPre;

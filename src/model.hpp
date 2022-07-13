@@ -8,6 +8,8 @@
 #include <vector>
 #include <thread>
 #include <cstdio>
+#include <cmath>
+#include <numeric>
 #include "utils.hpp"
 
 template<typename T>
@@ -23,6 +25,12 @@ std::ostream& operator<<(std::ostream &os, const std::vector<T> &vec)
     return os;
 }
 
+template <typename T>
+T vectorProduct(const std::vector<T>& v)
+{
+    return accumulate(v.begin(), v.end(), 1, std::multiplies<T>());
+}
+
 struct onnx_t
 {
     Ort::SessionOptions &&sessionOptions;
@@ -36,12 +44,12 @@ class Model
 public:
     Model(std::string models_path)
     {
-        Run(models_path);
+        _mRun(models_path);
     }
     retResult readModelList(std::string models_path);
     retResult Init(std::string models_path);
     void inference(void);
-    void Run(std::string models_path);
+    void _mRun(std::string models_path);
     void printInfo(const Ort::Session &session, const Ort::Allocator *allocator);
 
 

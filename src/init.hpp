@@ -31,6 +31,9 @@ struct video_t
     std::shared_ptr<std::deque<image_t>> imageQueue = std::make_shared<std::deque<image_t>>(); 
 };
 
+// flag
+extern bool parsing_flag;
+
 // mtx handle
 extern std::mutex gMtxVideo;
 extern std::mutex gMtxPre;

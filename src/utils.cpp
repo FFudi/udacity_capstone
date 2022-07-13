@@ -23,6 +23,7 @@ retResult Utils::readFolderList(std::string data_path)
     {
         std::cout << "[" << &ele - &*mVideoLists.begin() << "]: " << ele << std::endl;
     }
+    parsing_flag = true;
     ret = retResult::SUCCESS;
     return ret;
 }
@@ -56,14 +57,16 @@ retResult Utils::readVideoFile(std::string data_path, int set_width, int set_hei
         int key = 0;
 
         // define video_t variable
+        gMtxVideo.lock();
         video_t video;
         video.fileName = fileName;
         video.totalFrame = totalFrame;
         video.delay = delay;
         VideoQueue->push_back(video);
+        gMtxVideo.unlock();
 
         // play video
-
+        int frameNum = 1;
         while (capture.read(frame))
         {
             gMtxVideo.lock();
@@ -72,10 +75,11 @@ retResult Utils::readVideoFile(std::string data_path, int set_width, int set_hei
 
             // resize
             cv::resize(frame, frame, cv::Size(set_width, set_height));
+            printf("------------------------------------------------------------\n");
+            printf("[#%d] Parsing Stage: \n", frameNum++);
 
             image_t image{fileName, (int)totalFrame, current, set_width, set_height, frame};
             (VideoQueue->back()).imageQueue->push_back(image);
-
             gMtxVideo.unlock();
         }
         capture.release();
@@ -85,7 +89,7 @@ retResult Utils::readVideoFile(std::string data_path, int set_width, int set_hei
     return ret;
 }
 
-void Utils::Run(std::string data_path, int set_width, int set_height)
+void Utils::_Run(std::string data_path, int set_width, int set_height)
 {
     std::thread parsing_thrd(&Utils::readVideoFile, this, data_path, set_width, set_height);
     // std::thread rendering_thrd(&Utils::rendering, this);
@@ -98,9 +102,9 @@ void Utils::rendering(void)
     int key;
     int videoCnt = 0;
     // cv::namedWindow("Style transfer Viewer",  cv::WindowFlags::WINDOW_NORMAL);
-    cv::namedWindow("Style transfer Viewer2",  cv::WindowFlags::WINDOW_KEEPRATIO);
+    cv::namedWindow("Style transfer Viewer2", cv::WindowFlags::WINDOW_KEEPRATIO);
     // cv::namedWindow("Style transfer Viewer");
-    
+
     while (1)
     {
         if (VideoQueue->size() != 0)
@@ -137,7 +141,7 @@ void Utils::rendering(void)
             }
             VideoQueue->pop_front();
             videoCnt++;
-            
+
             if (videoCnt == mVideoLists.size())
             {
                 cv::destroyAllWindows();
