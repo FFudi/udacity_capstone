@@ -31,18 +31,80 @@ retResult Model::readModelList(std::string models_path)
     return ret;
 }
 
+// retResult Model::Init(std::string models_path)
+// {
+//     auto ret = retResult::ERROR;
+//     if(readModelList(models_path)!=retResult::SUCCESS) return ret;
+// // struct onnx_t
+// // {
+// //     Ort::SessionOptions sessionOptions;
+// //     Ort::Env env;
+// //     Ort::Session session;
+// //     Ort::AllocatorWithDefaultOptions allocator;
+// // };
+
+//     for (int idx = 0; idx < _mModelMapping.size(); idx++)
+//     {
+//         auto model_path = _mModelMapping.at(idx);
+//         printf("_mModelMapping.at(%d): %s\n", idx, model_path.c_str());
+
+
+//         Onnx ele_onnx;
+//         ele_onnx.env = Ort::Env(OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING, string_split(model_path, '/'));
+//         ele_onnx.session = Ort::Session(ele_onnx.env, model_path.c_str(), ele_onnx.sessionOptions);
+//         ele_onnx.sessionOptions.SetIntraOpNumThreads(1);
+//         ele_onnx.sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED);
+
+//         // In and Out nodes count
+//         size_t numInputNodes = session.GetInputCount();
+//         size_t numOutputNodes = session.GetOutputCount();
+
+//         std::cout << "Number of Input Nodes: " << numInputNodes << std::endl;
+//         std::cout << "Number of Output Nodes: " << numOutputNodes << std::endl;
+
+//         const char *inputName = session.GetInputName(0, allocator);
+//         std::cout << "Input Name: " << inputName << ", ";
+
+//         Ort::TypeInfo inputTypeInfo = session.GetInputTypeInfo(0);
+//         auto inputTensorInfo = inputTypeInfo.GetTensorTypeAndShapeInfo();
+
+//         std::vector<int64_t> inputDims = inputTensorInfo.GetShape();
+//         std::cout << "Input Dimensions: " << inputDims << std::endl;
+
+//         const char *outputName = session.GetOutputName(0, allocator);
+//         std::cout << "Output Name: " << outputName << ", ";
+
+//         Ort::TypeInfo outputTypeInfo = session.GetOutputTypeInfo(0);
+//         auto outputTensorInfo = outputTypeInfo.GetTensorTypeAndShapeInfo();
+
+//         std::vector<int64_t> outputDims = outputTensorInfo.GetShape();
+//         std::cout << "Output Dimensions: " << outputDims << std::endl;
+
+//         // onnx_t _mOnnx{std::move(sessionOptions), std::move(env), std::move(session), std::move(allocator)};
+//         // _ModelBank.insert({0, std::move(_mOnnx)});
+//     }
+
+//     ret = retResult::SUCCESS;
+//     return ret;
+// }
+
+// origin MOdel::Init
 retResult Model::Init(std::string models_path)
 {
     auto ret = retResult::ERROR;
     if(readModelList(models_path)!=retResult::SUCCESS) return ret;
+// struct onnx_t
+// {
+//     Ort::SessionOptions sessionOptions;
+//     Ort::Env env;
+//     Ort::Session session;
+//     Ort::AllocatorWithDefaultOptions allocator;
+// };
 
-    // Todo : range_for() about 5 onnx model
-    // for(int idx= 0; idx<_mModelMapping.size(); idx++)
-    for (int idx = 0; idx < 1; idx++)
+    for (int idx = 1; idx <= _mModelMapping.size(); idx++)
     {
-        // std::string temp_model = "candy";
-        auto model_path = _mModelMapping.at(1);
-        printf("_mModelMapping.at(0).c_str(): %s\n", model_path.c_str());
+        auto model_path = _mModelMapping.at(idx);
+        printf("_mModelMapping.at(%d): %s\n", idx, model_path.c_str());
 
         // loading network
         std::string temp_model = "candy";
@@ -58,7 +120,6 @@ retResult Model::Init(std::string models_path)
 
         Ort::AllocatorWithDefaultOptions allocator;
 
-        // printInfo(session, &allocator);
         // In and Out nodes count
         size_t numInputNodes = session.GetInputCount();
         size_t numOutputNodes = session.GetOutputCount();
@@ -135,89 +196,19 @@ void Model::inference(void)
                                   << "Inference Stage: " << video->fileName << "(" << preImage.width << "X" << preImage.height
                                   << "), FPS: " << (int)(1000 / video->delay) << std::endl;
 
+
                         cv::dnn::blobFromImage(preImage.frame, inferImage.frame);
 
 
-                        // inference
-                        // select model
-                        // onnx_t model = std::move(_ModelBank.at(0));
-                        // std::string temp_model = "candy";
-
-                        auto model_path = _mModelMapping.at(2);
-                        printf("_mModelMapping.at(0).c_str(): %s\n", model_path.c_str());
-
-                        // loading network
-                        std::string temp_model = "candy";
-
-                        // onnx initialize
-                        Ort::SessionOptions sessionOptions;
-                        sessionOptions.SetIntraOpNumThreads(1);
-                        sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED);
-
-                        // define onnx session
-                        Ort::Env env(OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING, temp_model.c_str());
-                        Ort::Session session(env, model_path.c_str(), sessionOptions);
-
-                        Ort::AllocatorWithDefaultOptions allocator;
-                        ////////////////////////////////
-                        Ort::TypeInfo inputTypeInfo = session.GetInputTypeInfo(0);
-                        auto inputTensorInfo = inputTypeInfo.GetTensorTypeAndShapeInfo();
-
-                        std::vector<int64_t> inputDims = inputTensorInfo.GetShape();
-                        size_t inputTensorSize = vectorProduct(inputDims);
-                        std::vector<float> inputTensorValues(inputTensorSize);
-
-                        inputTensorValues.assign(inferImage.frame.begin<float>(),
-                                                 inferImage.frame.end<float>());
-
-                        Ort::TypeInfo outputTypeInfo = session.GetOutputTypeInfo(0);
-                        auto outputTensorInfo = outputTypeInfo.GetTensorTypeAndShapeInfo();
-
-                        std::vector<int64_t> outputDims = outputTensorInfo.GetShape();
-                        size_t outputTensorSize = vectorProduct(outputDims);
-                        std::vector<float> outputTensorValues(outputTensorSize);
-
-                        // ////////////////////////////////
-                        std::vector<Ort::Value> inputTensors;
-                        std::vector<Ort::Value> outputTensors;
-                        Ort::MemoryInfo memoryInfo = Ort::MemoryInfo::CreateCpu(OrtAllocatorType::OrtArenaAllocator,
-                                                                                OrtMemType::OrtMemTypeDefault);
-
-                        inputTensors.push_back(Ort::Value::CreateTensor<float>(memoryInfo, inputTensorValues.data(),
-                                                                               inputTensorSize, inputDims.data(),
-                                                                               inputDims.size()));
-
-                        outputTensors.push_back(Ort::Value::CreateTensor<float>(memoryInfo,
-                                                                                outputTensorValues.data(),
-                                                                                outputTensorSize,
-                                                                                outputDims.data(),
-                                                                                outputDims.size()));
-                       
-                        // ////////////////////////////////
-                        std::vector<const char *> inputNames{session.GetInputName(0, allocator)};
-                        std::vector<const char *> outputNames{session.GetOutputName(0, allocator)};
-
-                        // session.Run(Ort::RunOptions{nullptr}, inputNames.data(),
-                        //             inputTensors.data(), 1, outputNames.data(),
-                        //             outputTensors.data(), 1);
-                        auto output_tensors = session.Run(Ort::RunOptions{nullptr}, inputNames.data(),
-                                                          inputTensors.data(), 1, outputNames.data(), 1);
-                        
-                        printf("output_tensors.size(): %ld\n", output_tensors.size());
-                        float *floatarr = output_tensors.front().GetTensorMutableData<float>();
-                        cv::Mat1f result_1f = cv::Mat1f(224, 224, floatarr);
-                        // result_1f *= 255;
-                        result_1f.convertTo(resultImage.frame, CV_8U);
-                        // ////////////////////////////////
-
-
-                        // validation code
-                        cv::imshow("Style transfer Viewer", resultImage.frame);
                         key = cv::waitKey(video->delay);
-                        if (key == 'q')
-                            exit(1);
 
-                        (InferQueue->back()).imageQueue->push_back(inferImage);
+                        currentModel = this->modelSelect(key);
+
+                        // excute model
+                        onnxExcute(currentModel, preImage, inferImage, resultImage);
+
+                        cv::imshow("Style transfer Viewer", resultImage.frame);
+
                         frameNum++;
                     }
 
@@ -235,6 +226,153 @@ void Model::inference(void)
     }
 }
 
+void Model::onnxExcute(const currentModel_t &currentModel, image_t &preImage, image_t &inferImage, image_t &resultImage)
+{
+
+    if (currentModel.model_name=="origin_name")
+    {
+        resultImage.frame = preImage.frame;
+        return;
+    }
+
+    // onnx initialize
+    Ort::SessionOptions sessionOptions;
+    sessionOptions.SetIntraOpNumThreads(1);
+    sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED);
+
+    // define onnx session
+    Ort::Env env(OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING, currentModel.model_name.c_str());
+    Ort::Session session = {env, currentModel.model_path.c_str(), sessionOptions};
+    Ort::AllocatorWithDefaultOptions allocator;
+
+    // Todo: load model by modelBank
+
+
+
+    // get INput, OUTput Info
+    Ort::TypeInfo inputTypeInfo = session.GetInputTypeInfo(0);
+    auto inputTensorInfo = inputTypeInfo.GetTensorTypeAndShapeInfo();
+
+    std::vector<int64_t> inputDims = inputTensorInfo.GetShape();
+    size_t inputTensorSize = vectorProduct(inputDims);
+    std::vector<float> inputTensorValues(inputTensorSize);
+
+    inputTensorValues.assign(inferImage.frame.begin<float>(),
+                             inferImage.frame.end<float>());
+
+    Ort::TypeInfo outputTypeInfo = session.GetOutputTypeInfo(0);
+    auto outputTensorInfo = outputTypeInfo.GetTensorTypeAndShapeInfo();
+
+    std::vector<int64_t> outputDims = outputTensorInfo.GetShape();
+    size_t outputTensorSize = vectorProduct(outputDims);
+    std::vector<float> outputTensorValues(outputTensorSize);
+
+    std::vector<Ort::Value> inputTensors;
+    std::vector<Ort::Value> outputTensors;
+    Ort::MemoryInfo memoryInfo = Ort::MemoryInfo::CreateCpu(OrtAllocatorType::OrtArenaAllocator,
+                                                            OrtMemType::OrtMemTypeDefault);
+
+    inputTensors.push_back(Ort::Value::CreateTensor<float>(memoryInfo, inputTensorValues.data(),
+                                                           inputTensorSize, inputDims.data(),
+                                                           inputDims.size()));
+
+    outputTensors.push_back(Ort::Value::CreateTensor<float>(memoryInfo,
+                                                            outputTensorValues.data(),
+                                                            outputTensorSize,
+                                                            outputDims.data(),
+                                                            outputDims.size()));
+
+    std::vector<const char *> inputNames{session.GetInputName(0, allocator)};
+    std::vector<const char *> outputNames{session.GetOutputName(0, allocator)};
+
+    // run
+    auto output_tensors = session.Run(Ort::RunOptions{nullptr}, inputNames.data(),
+                                      inputTensors.data(), 1, outputNames.data(), 1);
+
+    printf("output_tensors.size(): %ld\n", output_tensors.size());
+    float *floatArr = output_tensors.front().GetTensorMutableData<float>();
+
+    cv::Mat1f result_1f = cv::Mat1f(224, 224, floatArr);
+    result_1f.convertTo(resultImage.frame, CV_8U);
+}
+
+std::string Model::string_split(std::string str, char Delimiter)
+{
+    std::istringstream iss(str);
+    std::string buffer;
+
+    while (getline(iss, buffer, Delimiter))
+    {
+    }
+
+    return buffer;
+}
+
+currentModel_t Model::modelSelect(int key_)
+{
+    std::string model_path;
+    std::string model_name;
+    std::map<const char *, const char *> modelInfo;
+
+    switch (key_)
+    {
+    case '1':
+        model_path = _mModelMapping.at(1);
+        model_name = string_split(model_path, '/');
+        currentModel = {model_name, model_path};
+        printf("@@@@@@@@ onnx Model: %s\n", model_name.c_str());
+
+        break;
+
+    case '2':
+        model_path = _mModelMapping.at(2);
+        model_name = string_split(model_path, '/');
+        currentModel = {model_name, model_path};
+        printf("@@@@@@@@ onnx Model: %s\n", model_name.c_str());
+
+        break;
+
+    case '3':
+        model_path = _mModelMapping.at(3);
+        model_name = string_split(model_path, '/');
+        currentModel = {model_name, model_path};
+        printf("@@@@@@@@ onnx Model: %s\n", model_name.c_str());
+
+        break;
+
+    case '4':
+        model_path = _mModelMapping.at(4);
+        model_name = string_split(model_path, '/');
+        currentModel = {model_name, model_path};
+        printf("@@@@@@@@ onnx Model: %s\n", model_name.c_str());
+
+        break;
+
+    case '5':
+        model_path = _mModelMapping.at(5);
+        model_name = string_split(model_path, '/');
+        currentModel = {model_name, model_path};
+        printf("@@@@@@@@ onnx Model: %s\n", model_name.c_str());
+
+        break;
+
+    case 0x1B:
+    case 'q':
+    case 'Q': // ESC key, q, Q
+        printf("--------------- quit program ---------------\n");
+        exit(1);
+        break;
+
+    case '0':
+        printf("Transfer Model execution stopped \n");
+        currentModel = {std::string("origin_name"), std::string("origin_path")};
+        break;
+
+    default:
+        break;
+    }
+    return currentModel;
+}
 
 void Model::_mRun(std::string models_path)
 {
