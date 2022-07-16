@@ -84,5 +84,4 @@ private : std::map<int, std::string> _mModelMapping;
     std::shared_ptr<float *> floatArr = std::make_shared<float *>();
 };
 
-
 #endif // __MODEL_H__

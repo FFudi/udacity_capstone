@@ -4,7 +4,6 @@ project(capstone VERSION 0.1.0)
 add_executable(capstone ./src/main.cpp
 ./src/init.cpp
 ./src/preprocess.cpp
-./src/postprocess.cpp
 ./src/utils.cpp
 ./src/model.cpp)
 
@@ -23,6 +22,8 @@ find_package(Threads REQUIRED)
 target_link_libraries(capstone ${CMAKE_THREAD_LIBS_INIT})
 
 # onnxruntime
-find_library(ONNX_RUNTIME_LIB onnxruntime HINTS ./onnxInstall/runtimes/linux-x64/native)
-include_directories(./onnxInstall/build/native/include)
+# find_library(ONNX_RUNTIME_LIB onnxruntime HINTS ./onnxInstall/runtimes/linux-x64/native)
+# include_directories(./onnxInstall/build/native/include)
+find_library(ONNX_RUNTIME_LIB onnxruntime HINTS ./onnx/lib/)
+include_directories(./onnx/include)
 target_link_libraries(capstone ${ONNX_RUNTIME_LIB})

@@ -16,12 +16,11 @@ void PreProcess::pre(void)
         {
 
             std::cout << "@@ PreProcess Done" << std::endl;
-            // exit(1);
             return;
         }
         else
         {
-            // gMtxPre.lock();
+            gMtxPre.lock();
             if (VideoQueue->size() != 0)
             {
                 video_t *video = &(VideoQueue->front());
@@ -60,7 +59,7 @@ void PreProcess::pre(void)
                     }
                 }
             }
-            // gMtxPre.unlock();
+            gMtxPre.unlock();
         }
         gMtxVideo.unlock();
     }
