@@ -45,15 +45,8 @@ void PreProcess::pre(void)
                                   << "PreProcess Stage: " << video->fileName << "(" << preImage.width << "X" << preImage.height
                                   << "), FPS: " << (int)(1000 / video->delay) << std::endl;
 
-                        // preprocess(BGR to RGB)
-                        cv::cvtColor(preImage.frame, preImage.frame, cv::ColorConversionCodes::COLOR_BGR2RGB);
-                        (preImage.frame).convertTo(preImage.frame, CV_32F, 1.0 / 255); // cvt CV_32F, 1.0/255
-
-                        // validation code
-                        // cv::imshow("Style transfer Viewer", preImage.frame);
-                        // key = cv::waitKey(video->delay);
-                        // if (key == 'q')
-                        //     exit(1);
+                        // preprocess
+                        (preImage.frame).convertTo(preImage.frame, CV_32F); // cvt CV_32F, 1.0/255
 
                         (PreQueue->back()).imageQueue->push_back(preImage);
                         frameNum++;

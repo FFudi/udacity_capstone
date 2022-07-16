@@ -3,6 +3,16 @@
 
 namespace fs = boost::filesystem;
 
+std::string string_split(std::string str, char Delimiter)
+{
+    std::istringstream iss(str);
+    std::string buffer;
+
+    while (getline(iss, buffer, Delimiter)){}
+
+    return buffer;
+}
+
 retResult Model::readModelList(std::string models_path)
 {
     retResult ret = retResult::ERROR;
@@ -31,124 +41,45 @@ retResult Model::readModelList(std::string models_path)
     return ret;
 }
 
-// retResult Model::Init(std::string models_path)
-// {
-//     auto ret = retResult::ERROR;
-//     if(readModelList(models_path)!=retResult::SUCCESS) return ret;
-// // struct onnx_t
-// // {
-// //     Ort::SessionOptions sessionOptions;
-// //     Ort::Env env;
-// //     Ort::Session session;
-// //     Ort::AllocatorWithDefaultOptions allocator;
-// // };
-
-//     for (int idx = 0; idx < _mModelMapping.size(); idx++)
-//     {
-//         auto model_path = _mModelMapping.at(idx);
-//         printf("_mModelMapping.at(%d): %s\n", idx, model_path.c_str());
-
-
-//         Onnx ele_onnx;
-//         ele_onnx.env = Ort::Env(OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING, string_split(model_path, '/'));
-//         ele_onnx.session = Ort::Session(ele_onnx.env, model_path.c_str(), ele_onnx.sessionOptions);
-//         ele_onnx.sessionOptions.SetIntraOpNumThreads(1);
-//         ele_onnx.sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED);
-
-//         // In and Out nodes count
-//         size_t numInputNodes = session.GetInputCount();
-//         size_t numOutputNodes = session.GetOutputCount();
-
-//         std::cout << "Number of Input Nodes: " << numInputNodes << std::endl;
-//         std::cout << "Number of Output Nodes: " << numOutputNodes << std::endl;
-
-//         const char *inputName = session.GetInputName(0, allocator);
-//         std::cout << "Input Name: " << inputName << ", ";
-
-//         Ort::TypeInfo inputTypeInfo = session.GetInputTypeInfo(0);
-//         auto inputTensorInfo = inputTypeInfo.GetTensorTypeAndShapeInfo();
-
-//         std::vector<int64_t> inputDims = inputTensorInfo.GetShape();
-//         std::cout << "Input Dimensions: " << inputDims << std::endl;
-
-//         const char *outputName = session.GetOutputName(0, allocator);
-//         std::cout << "Output Name: " << outputName << ", ";
-
-//         Ort::TypeInfo outputTypeInfo = session.GetOutputTypeInfo(0);
-//         auto outputTensorInfo = outputTypeInfo.GetTensorTypeAndShapeInfo();
-
-//         std::vector<int64_t> outputDims = outputTensorInfo.GetShape();
-//         std::cout << "Output Dimensions: " << outputDims << std::endl;
-
-//         // onnx_t _mOnnx{std::move(sessionOptions), std::move(env), std::move(session), std::move(allocator)};
-//         // _ModelBank.insert({0, std::move(_mOnnx)});
-//     }
-
-//     ret = retResult::SUCCESS;
-//     return ret;
-// }
-
-// origin MOdel::Init
 retResult Model::Init(std::string models_path)
 {
     auto ret = retResult::ERROR;
     if(readModelList(models_path)!=retResult::SUCCESS) return ret;
-// struct onnx_t
-// {
-//     Ort::SessionOptions sessionOptions;
-//     Ort::Env env;
-//     Ort::Session session;
-//     Ort::AllocatorWithDefaultOptions allocator;
-// };
 
     for (int idx = 1; idx <= _mModelMapping.size(); idx++)
     {
         auto model_path = _mModelMapping.at(idx);
         printf("_mModelMapping.at(%d): %s\n", idx, model_path.c_str());
 
-        // loading network
-        std::string temp_model = "candy";
-
-        // onnx initialize
-        Ort::SessionOptions sessionOptions;
-        sessionOptions.SetIntraOpNumThreads(1);
-        sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED);
-
-        // define onnx session
-        Ort::Env env(OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING, temp_model.c_str());
-        Ort::Session session(env, model_path.c_str(), sessionOptions);
-
-        Ort::AllocatorWithDefaultOptions allocator;
+        Onnx ele_onnx(model_path);
 
         // In and Out nodes count
-        size_t numInputNodes = session.GetInputCount();
-        size_t numOutputNodes = session.GetOutputCount();
+        size_t numInputNodes = ele_onnx.session->GetInputCount();
+        size_t numOutputNodes = ele_onnx.session->GetOutputCount();
 
         std::cout << "Number of Input Nodes: " << numInputNodes << std::endl;
         std::cout << "Number of Output Nodes: " << numOutputNodes << std::endl;
 
-        const char *inputName = session.GetInputName(0, allocator);
+        const char *inputName = ele_onnx.session->GetInputName(0, ele_onnx.allocator);
         std::cout << "Input Name: " << inputName << ", ";
 
-        Ort::TypeInfo inputTypeInfo = session.GetInputTypeInfo(0);
+        Ort::TypeInfo inputTypeInfo = ele_onnx.session->GetInputTypeInfo(0);
         auto inputTensorInfo = inputTypeInfo.GetTensorTypeAndShapeInfo();
 
         std::vector<int64_t> inputDims = inputTensorInfo.GetShape();
         std::cout << "Input Dimensions: " << inputDims << std::endl;
 
-        const char *outputName = session.GetOutputName(0, allocator);
+        const char *outputName = ele_onnx.session->GetOutputName(0, ele_onnx.allocator);
         std::cout << "Output Name: " << outputName << ", ";
 
-        Ort::TypeInfo outputTypeInfo = session.GetOutputTypeInfo(0);
+        Ort::TypeInfo outputTypeInfo = ele_onnx.session->GetOutputTypeInfo(0);
         auto outputTensorInfo = outputTypeInfo.GetTensorTypeAndShapeInfo();
 
         std::vector<int64_t> outputDims = outputTensorInfo.GetShape();
         std::cout << "Output Dimensions: " << outputDims << std::endl;
 
-        // onnx_t _mOnnx{std::move(sessionOptions), std::move(env), std::move(session), std::move(allocator)};
-        // _ModelBank.insert({0, std::move(_mOnnx)});
+        _ModelBank.push_back(std::move(ele_onnx));
     }
-
     ret = retResult::SUCCESS;
     return ret;
 }
@@ -199,7 +130,6 @@ void Model::inference(void)
 
                         cv::dnn::blobFromImage(preImage.frame, inferImage.frame);
 
-
                         key = cv::waitKey(video->delay);
 
                         currentModel = this->modelSelect(key);
@@ -235,22 +165,11 @@ void Model::onnxExcute(const currentModel_t &currentModel, image_t &preImage, im
         return;
     }
 
-    // onnx initialize
-    Ort::SessionOptions sessionOptions;
-    sessionOptions.SetIntraOpNumThreads(1);
-    sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED);
-
-    // define onnx session
-    Ort::Env env(OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING, currentModel.model_name.c_str());
-    Ort::Session session = {env, currentModel.model_path.c_str(), sessionOptions};
-    Ort::AllocatorWithDefaultOptions allocator;
-
-    // Todo: load model by modelBank
-
-
+    // load model by modelBank
+    Onnx* model = &_ModelBank.at(currentModel.model_idx-1);
 
     // get INput, OUTput Info
-    Ort::TypeInfo inputTypeInfo = session.GetInputTypeInfo(0);
+    Ort::TypeInfo inputTypeInfo = model->session->GetInputTypeInfo(0);
     auto inputTensorInfo = inputTypeInfo.GetTensorTypeAndShapeInfo();
 
     std::vector<int64_t> inputDims = inputTensorInfo.GetShape();
@@ -260,7 +179,7 @@ void Model::onnxExcute(const currentModel_t &currentModel, image_t &preImage, im
     inputTensorValues.assign(inferImage.frame.begin<float>(),
                              inferImage.frame.end<float>());
 
-    Ort::TypeInfo outputTypeInfo = session.GetOutputTypeInfo(0);
+    Ort::TypeInfo outputTypeInfo = model->session->GetOutputTypeInfo(0);
     auto outputTensorInfo = outputTypeInfo.GetTensorTypeAndShapeInfo();
 
     std::vector<int64_t> outputDims = outputTensorInfo.GetShape();
@@ -282,11 +201,11 @@ void Model::onnxExcute(const currentModel_t &currentModel, image_t &preImage, im
                                                             outputDims.data(),
                                                             outputDims.size()));
 
-    std::vector<const char *> inputNames{session.GetInputName(0, allocator)};
-    std::vector<const char *> outputNames{session.GetOutputName(0, allocator)};
+    std::vector<const char *> inputNames{model->session->GetInputName(0, model->allocator)};
+    std::vector<const char *> outputNames{model->session->GetOutputName(0, model->allocator)};
 
     // run
-    auto output_tensors = session.Run(Ort::RunOptions{nullptr}, inputNames.data(),
+    auto output_tensors = model->session->Run(Ort::RunOptions{nullptr}, inputNames.data(),
                                       inputTensors.data(), 1, outputNames.data(), 1);
 
     printf("output_tensors.size(): %ld\n", output_tensors.size());
@@ -294,18 +213,6 @@ void Model::onnxExcute(const currentModel_t &currentModel, image_t &preImage, im
 
     cv::Mat1f result_1f = cv::Mat1f(224, 224, floatArr);
     result_1f.convertTo(resultImage.frame, CV_8U);
-}
-
-std::string Model::string_split(std::string str, char Delimiter)
-{
-    std::istringstream iss(str);
-    std::string buffer;
-
-    while (getline(iss, buffer, Delimiter))
-    {
-    }
-
-    return buffer;
 }
 
 currentModel_t Model::modelSelect(int key_)
@@ -319,7 +226,7 @@ currentModel_t Model::modelSelect(int key_)
     case '1':
         model_path = _mModelMapping.at(1);
         model_name = string_split(model_path, '/');
-        currentModel = {model_name, model_path};
+        currentModel = {1, model_name, model_path};
         printf("@@@@@@@@ onnx Model: %s\n", model_name.c_str());
 
         break;
@@ -327,7 +234,7 @@ currentModel_t Model::modelSelect(int key_)
     case '2':
         model_path = _mModelMapping.at(2);
         model_name = string_split(model_path, '/');
-        currentModel = {model_name, model_path};
+        currentModel = {2, model_name, model_path};
         printf("@@@@@@@@ onnx Model: %s\n", model_name.c_str());
 
         break;
@@ -335,7 +242,7 @@ currentModel_t Model::modelSelect(int key_)
     case '3':
         model_path = _mModelMapping.at(3);
         model_name = string_split(model_path, '/');
-        currentModel = {model_name, model_path};
+        currentModel = {3, model_name, model_path};
         printf("@@@@@@@@ onnx Model: %s\n", model_name.c_str());
 
         break;
@@ -343,7 +250,7 @@ currentModel_t Model::modelSelect(int key_)
     case '4':
         model_path = _mModelMapping.at(4);
         model_name = string_split(model_path, '/');
-        currentModel = {model_name, model_path};
+        currentModel = {4, model_name, model_path};
         printf("@@@@@@@@ onnx Model: %s\n", model_name.c_str());
 
         break;
@@ -351,7 +258,7 @@ currentModel_t Model::modelSelect(int key_)
     case '5':
         model_path = _mModelMapping.at(5);
         model_name = string_split(model_path, '/');
-        currentModel = {model_name, model_path};
+        currentModel = {5, model_name, model_path};
         printf("@@@@@@@@ onnx Model: %s\n", model_name.c_str());
 
         break;
@@ -365,7 +272,7 @@ currentModel_t Model::modelSelect(int key_)
 
     case '0':
         printf("Transfer Model execution stopped \n");
-        currentModel = {std::string("origin_name"), std::string("origin_path")};
+        currentModel = {0, std::string("origin_name"), std::string("origin_path")};
         break;
 
     default:
