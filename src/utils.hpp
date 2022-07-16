@@ -4,7 +4,7 @@
 #include <boost/filesystem.hpp>
 #include "init.hpp"
 
-class Utils : public Init
+class Utils
 {
 public:
     Utils(std::string data_path, int width, int height)

@@ -21,7 +21,7 @@ void PreProcess::pre(void)
         }
         else
         {
-            gMtxPre.lock();
+            // gMtxPre.lock();
             if (VideoQueue->size() != 0)
             {
                 video_t *video = &(VideoQueue->front());
@@ -46,7 +46,7 @@ void PreProcess::pre(void)
                                   << "), FPS: " << (int)(1000 / video->delay) << std::endl;
 
                         // preprocess
-                        (preImage.frame).convertTo(preImage.frame, CV_32F); // cvt CV_32F, 1.0/255
+                        (preImage.frame).convertTo(preImage.frame, CV_32F, 1.0/255); // cvt CV_32F, 1.0/255
 
                         (PreQueue->back()).imageQueue->push_back(preImage);
                         frameNum++;
@@ -60,7 +60,7 @@ void PreProcess::pre(void)
                     }
                 }
             }
-            gMtxPre.unlock();
+            // gMtxPre.unlock();
         }
         gMtxVideo.unlock();
     }

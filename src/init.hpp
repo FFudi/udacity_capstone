@@ -38,20 +38,11 @@ extern bool parsing_flag;
 extern std::mutex gMtxVideo;
 extern std::mutex gMtxPre;
 extern std::mutex gMtxInfer;
-extern std::mutex gMtxPost;
 
 // video struct
 extern std::vector<std::string> mVideoLists;
 extern std::shared_ptr<std::deque<video_t>> VideoQueue;
 extern std::shared_ptr<std::deque<video_t>> PreQueue;
 extern std::shared_ptr<std::deque<video_t>> InferQueue;
-extern std::shared_ptr<std::deque<video_t>> PostQueue;
-
-class Init
-{
-// protected:
-//     std::vector<std::string> mVideoLists;
-//     std::shared_ptr<std::deque<video_t>> VideoQueue = std::make_shared<std::deque<video_t>>();
-};
 
 #endif

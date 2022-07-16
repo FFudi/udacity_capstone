@@ -102,7 +102,7 @@ void Model::inference(void)
         }
         else
         {
-            gMtxInfer.lock();
+            // gMtxInfer.lock();
             if (PreQueue->size() != 0)
             {
                 video_t *video = &(PreQueue->front());
@@ -150,7 +150,7 @@ void Model::inference(void)
                     }
                 }
             }
-            gMtxInfer.unlock();
+            // gMtxInfer.unlock();
         }
         gMtxPre.unlock();
     }
