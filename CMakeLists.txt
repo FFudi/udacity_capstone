@@ -1,4 +1,6 @@
 cmake_minimum_required(VERSION 3.0.0)
+
+SET(CMAKE_BUILD_TYPE Debug) 
 project(capstone VERSION 0.1.0)
 
 add_executable(capstone ./src/main.cpp
@@ -22,6 +24,6 @@ find_package(Threads REQUIRED)
 target_link_libraries(capstone ${CMAKE_THREAD_LIBS_INIT})
 
 # onnxruntime
-find_library(ONNX_RUNTIME_LIB onnxruntime HINTS ./onnx/lib/)
+find_library(ONNX_RUNTIME_LIB NAMES libonnxruntime.so HINTS ./onnx/lib)
 include_directories(./onnx/include)
 target_link_libraries(capstone ${ONNX_RUNTIME_LIB})
