@@ -37,6 +37,7 @@ retResult Utils::readVideoFile(std::string data_path, int set_width, int set_hei
         exit(1);
 
     // video capture
+    int idx = 1;
     for (auto &fileName : mVideoLists)
     {
         std::cout << "\nREAD FILE : " << fileName << std::endl;
@@ -46,7 +47,15 @@ retResult Utils::readVideoFile(std::string data_path, int set_width, int set_hei
         if (!capture.isOpened())
         {
             std::cout << "can't open this video: " << fileName << std::endl;
-            exit(1);
+
+            if (idx == mVideoLists.size())
+            {
+                exit(1);
+            }
+            else
+            {
+                continue;
+            }
         }
 
         // video info init
