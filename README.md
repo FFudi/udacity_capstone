@@ -44,7 +44,7 @@ This repository contains:
   **! This repository has been successfully built and tested on Ubuntu 18.08 with OpenCV 4.1 running C++14.**
 
 ## Build Instructions
-1. ` export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/PATH/TO/WORK/FOLDER/udacity_capstone/onnx/lib'
+1. ` export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/PATH/TO/WORK/FOLDER/udacity_capstone/onnx/lib`
 2. `mkdir build && cd build`
 3. `cmake .. && make -j $(nproc)`
 4. `cd ../ && sudo ldconfig`
