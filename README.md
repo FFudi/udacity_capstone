@@ -44,10 +44,13 @@ This repository contains:
   **! This repository has been successfully built and tested on Ubuntu 18.08 with OpenCV 4.1 running C++14.**
 
 ## Build Instructions
-1. ` export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/PATH/TO/WORK/FOLDER/udacity_capstone/onnx/lib`
-2. `mkdir build && cd build`
-3. `cmake .. && make -j $(nproc)`
-4. `cd ../ && sudo ldconfig`
+1. `cp onnx/lib/libonnxruntime.so /usr/local/lib`
+2. `cp onnx/lib/libonnxruntime.so.1.11.0 /usr/local/lib`
+3. `export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib`
+4. `sudo ldconfig`
+5. `mkdir build && cd build`
+6. `cmake -DCMAKE_PREFIX_PATH=$PWD/onnx/lib ..`
+7. `make -j $(nproc)`
 
 The executable(`capstone`) is created in the current directory(`build`).
 
