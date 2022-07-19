@@ -2,6 +2,9 @@
 
 ## Output Image
 <img src="output_image/origin.png"/>
+<img src="output_image/style_transfer_viewer/style_transfer_viewer2.gif"/>
+
+<img src="output_image/origin.png"/>
 <img src="output_image/candy.png"/>
 <img src="output_image/mosaic.png"/>
 
